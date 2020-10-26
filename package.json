@@ -29,9 +29,7 @@
   "files": [
     "es",
     "types",
-    "lib",
-    "src",
-    "__tests__"
+    "lib"
   ],
   "keywords": [
     "imcuttle",
