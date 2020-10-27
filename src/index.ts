@@ -67,9 +67,7 @@ const requireResolveHook = (match: Match, onResolve: OnResolve) => {
     }
 
     if (!argvList.length) {
-      Module._resolveFilename = Module.__require_resolve_hook_origin_resolveFilename__ || Module._resolveFilename
-      delete Module.__require_resolve_hook_origin_resolveFilename__
-      delete Module.__require_resolve_hook__
+      unhookGlobal()
     }
   }
 
@@ -91,5 +89,13 @@ export const bypass = (fn: () => any): ReturnType<typeof fn> => {
   Module._resolveFilename = _resolveFilename
   return result
 }
+
+const unhookGlobal = () => {
+  Module._resolveFilename = Module.__require_resolve_hook_origin_resolveFilename__ || Module._resolveFilename
+  delete Module.__require_resolve_hook_origin_resolveFilename__
+  delete Module.__require_resolve_hook__
+}
+
+export const unhook = unhookGlobal
 
 export default requireResolveHook

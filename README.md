@@ -20,8 +20,49 @@ yarn add require-resolve-hook
 ## Usage
 
 ```javascript
-const requireResolveHook = require('require-resolve-hook')
+import requireResolveHook, { bypass, unhook } from 'require-resolve-hook'
+
+const { unhook: unhookReact, bypass: bypassReact } = requireResolveHook('react', (id, parent, isMain) => {
+  return '/path/to/your/custom-react' // absolute path
+})
+
+require.resolve('react') // => '/path/to/your/custom-react'
+require('react') // => export '/path/to/your/custom-react'
+
+bypassReact(() => require.resolve('react')) // => '/path/to/real-react'
+
+unhookReact()
+require.resolve('react') // => '/path/to/real-react'
 ```
+
+## API
+
+#### `requireResolveHook(match: Match, onResolve: OnResolve)`
+
+- **Returns:** `{ bypass: (fn) => ReturnType<fn>, unhook: () => void }`
+
+  `bypass` means:
+
+  ```javascript
+  bypass = (fn) => {
+    unhook()
+    const res = fn()
+    hook()
+    return res
+  }
+  ```
+
+#### `StrictMatch`
+
+- **Type:** `string | RegExp | (id: string) => boolean`
+
+#### `Match`
+
+- Type: `StrictMatch | StrictMatch[]`
+
+#### `OnResolve`
+
+- **Type:** `(id: string, parent: null | Module, isMain: boolean) => string | false`
 
 ## Contributing
 
