@@ -32,30 +32,29 @@ const requireResolveHook = (match: Match, onResolve: OnResolve) => {
   const hook = () => {
     const argvList = (Module.__require_resolve_hook__ = Module.__require_resolve_hook__ || [])
     argvList.push(argv)
-  }
-  hook()
 
-  if (!Module.__require_resolve_hook_origin_resolveFilename__) {
-    Module.__require_resolve_hook_origin_resolveFilename__ = Module._resolveFilename
-    const _resolveFilename = Module._resolveFilename
+    if (!Module.__require_resolve_hook_origin_resolveFilename__) {
+      Module.__require_resolve_hook_origin_resolveFilename__ = Module._resolveFilename
+      const _resolveFilename = Module._resolveFilename
 
-    Module._resolveFilename = function (request, parent, isMain, options) {
-      const argvList = (Module.__require_resolve_hook__ || []).slice()
+      Module._resolveFilename = function (request, parent, isMain, options) {
+        const argvList = (Module.__require_resolve_hook__ || []).slice()
 
-      while (argvList.length) {
-        const [match, onResolve] = argvList.shift()
+        while (argvList.length) {
+          const [match, onResolve] = argvList.shift()
 
-        if (match) {
-          if (isMatch(match, request)) {
-            let result = onResolve(request, parent, isMain, options)
-            if (result && typeof result === 'string') {
-              return result
+          if (match) {
+            if (isMatch(match, request)) {
+              let result = onResolve(request, parent, isMain, options)
+              if (result && typeof result === 'string') {
+                return result
+              }
             }
           }
         }
-      }
 
-      return _resolveFilename.call(this, request, parent, isMain, options)
+        return _resolveFilename.call(this, request, parent, isMain, options)
+      }
     }
   }
 
@@ -70,6 +69,8 @@ const requireResolveHook = (match: Match, onResolve: OnResolve) => {
       unhookGlobal()
     }
   }
+
+  hook()
 
   return {
     bypass: (fn: () => any): ReturnType<typeof fn> => {
