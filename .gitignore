@@ -1,10 +1,11 @@
 .idea/
 .DS_Store
-node_modules/
+/node_modules/
 dist/
 public/
 **/*debug.log
 coverage/
+.nyc_output
 .entry
 .dist
 .vscode

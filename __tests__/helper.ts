@@ -4,10 +4,12 @@
 
 const nps = require('path')
 
-function fixture() {
-  return nps.join.apply(nps, [__dirname, 'fixture'].concat([].slice.call(arguments)))
+function fixture(...args: string[]) {
+  return nps.join.apply(nps, [__dirname, 'fixture'].concat(args))
 }
 
-module.exports = {
-  fixture
+function nodeModules(...args: string[]) {
+  return nps.join.apply(nps, [__dirname, 'node_modules'].concat(args))
 }
+
+export { fixture, nodeModules }
