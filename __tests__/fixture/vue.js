@@ -1,1 +1,1 @@
-module.exports = 'mock react'
+module.exports = 'mock ' + require('vue')

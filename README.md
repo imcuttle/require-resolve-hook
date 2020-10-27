@@ -64,6 +64,23 @@ require.resolve('react') // => '/path/to/real-react'
 
 - **Type:** `(id: string, parent: null | Module, isMain: boolean) => string | false`
 
+## FAQ
+
+1. How to require the actual module in the mock file?
+
+```javascript
+import requireResolveHook, { bypass } from 'require-resolve-hook'
+import * as Module from 'module'
+
+requireResolveHook(/^react/, (id, parent, isMain, opts) => {
+  if (parent && parent.filename === '/path/to/mock/react') {
+    // Access the actual react filename
+    return bypass(() => Module._resolveFilename(id, parent, isMain, opts))
+  }
+  return '/path/to/mock/react'
+})
+```
+
 ## Contributing
 
 - Fork it!

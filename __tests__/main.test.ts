@@ -60,3 +60,15 @@ test('spec hook multi', function (t) {
   unhookReact()
   unhookVue()
 })
+
+test('modify origin exports', function (t) {
+  const { unhook: unhookVue, bypass: bypassVue } = requireResolveHook('vue', (id, parent, isMain, options) => {
+    if (parent.filename === fixture('vue.js')) {
+      return bypass(() => require('module')._resolveFilename('vue', parent, isMain, options))
+    }
+    return fixture('vue.js')
+  })
+
+  t.is(require('vue'), 'mock real vue')
+  unhookVue()
+})
