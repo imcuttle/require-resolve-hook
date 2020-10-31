@@ -1,6 +1,6 @@
 {
   "name": "require-resolve-hook",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Module to hook into the Node.js require and require.resolve function",
   "author": "imcuttle <imcuttle@163.com>",
   "scripts": {
