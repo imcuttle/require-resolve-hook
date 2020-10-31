@@ -2,7 +2,8 @@ sudo: false
 language: node_js
 node_js:
   - 10
-  - stable
+  - 12
+  - 14
 
 cache:
   bundle: true
@@ -13,7 +14,7 @@ cache:
 # - npm install
 
 script:
+  - npm install codecov nyc --no-save
   - npx nyc $(npm bin)/ava
 after_script:
-  - npm install codecov --no-save
-  - codecov --token=$CODECOV_TOKEN
+  - npx nyc report --reporter=text-lcov | npx codecov --token=$CODECOV_TOKEN --pipe
