@@ -4,10 +4,20 @@
  * @date 2018/4/4
  */
 
-import requireResolveHook, { bypass } from '../src'
+import requireResolveHook, { bypass, unhook } from '../src'
 import { fixture, nodeModules } from './helper'
 
 const test = require('ava')
+
+test.beforeEach(() => {
+  unhook()
+
+  for (const [name, mod] of Object.entries(require.cache)) {
+    if (name.startsWith(fixture(''))) {
+      delete require.cache[name]
+    }
+  }
+})
 
 test('spec hook once', function (t) {
   const { unhook, bypass } = requireResolveHook('react', (id, parent, isMain, options) => {
@@ -71,4 +81,38 @@ test('modify origin exports', function (t) {
 
   t.is(require('vue'), 'mock real vue')
   unhookVue()
+})
+
+test('Option: ignoreModuleNotFoundError=true', function (t) {
+  const { unhook: unhookVue, bypass: bypassVue } = requireResolveHook('vue', (id, parent, isMain, options) => {
+    // error throw
+    return bypass(() => require.resolve('vue'))
+  })
+
+  const { unhook: unhookVue2, bypass: bypassVue2 } = requireResolveHook('vue', (id, parent, isMain, options) => {
+    return fixture('vue.js')
+  })
+
+  t.is(require('vue'), 'mock real vue')
+  unhookVue()
+  unhookVue2()
+})
+
+test('Option: ignoreModuleNotFoundError=false', function (t) {
+  const { unhook: unhookVue, bypass: bypassVue } = requireResolveHook(
+    'vue',
+    (id, parent, isMain, options) => {
+      // error throw
+      return require.resolve('vue_xxx')
+    },
+    { ignoreModuleNotFoundError: false }
+  )
+
+  const { unhook: unhookVue2, bypass: bypassVue2 } = requireResolveHook('vue', (id, parent, isMain, options) => {
+    return fixture('vue.js')
+  })
+
+  t.throws(() => require.resolve('vue'), { code: 'MODULE_NOT_FOUND' })
+  unhookVue()
+  unhookVue2()
 })

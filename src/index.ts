@@ -10,6 +10,9 @@ const Module = require('module')
 export type StrictMatch = string | ((id: string) => boolean) | RegExp
 export type Match = StrictMatch | StrictMatch[]
 export type OnResolve = (id: string, parent: null | ModuleType, isMain: boolean, options: any) => string | false
+export type Options = {
+  ignoreModuleNotFoundError?: boolean
+}
 
 const isMatch = (match: Match, id: string) => {
   if (Array.isArray(match)) {
@@ -27,8 +30,8 @@ const isMatch = (match: Match, id: string) => {
   return shouldUseHook
 }
 
-const requireResolveHook = (match: Match, onResolve: OnResolve) => {
-  const argv = [match, onResolve]
+const requireResolveHook = (match: Match, onResolve: OnResolve, options: Options = {}) => {
+  const argv = [match, onResolve, options]
   const hook = () => {
     const argvList = (Module.__require_resolve_hook__ = Module.__require_resolve_hook__ || [])
     argvList.push(argv)
@@ -41,13 +44,21 @@ const requireResolveHook = (match: Match, onResolve: OnResolve) => {
         const argvList = (Module.__require_resolve_hook__ || []).slice()
 
         while (argvList.length) {
-          const [match, onResolve] = argvList.shift()
+          const [match, onResolve, opts = {}] = argvList.shift()
+          const { ignoreModuleNotFoundError = true } = opts
 
           if (match) {
             if (isMatch(match, request)) {
-              let result = onResolve(request, parent, isMain, options)
-              if (result && typeof result === 'string') {
-                return result
+              try {
+                let result = onResolve(request, parent, isMain, options)
+                if (result && typeof result === 'string') {
+                  return result
+                }
+              } catch (err) {
+                if (ignoreModuleNotFoundError && err && 'MODULE_NOT_FOUND' === err.code) {
+                  return
+                }
+                throw err
               }
             }
           }

@@ -37,7 +37,7 @@ require.resolve('react') // => '/path/to/real-react'
 
 ## API
 
-#### `requireResolveHook(match: Match, onResolve: OnResolve)`
+#### `requireResolveHook(match: Match, onResolve: OnResolve, options: Options)`
 
 - **Returns:** `{ bypass: (fn) => ReturnType<fn>, unhook: () => void }`
 
@@ -63,6 +63,29 @@ require.resolve('react') // => '/path/to/real-react'
 #### `OnResolve`
 
 - **Type:** `(id: string, parent: null | Module, isMain: boolean) => string | false`
+
+#### `Options`
+
+##### `ignoreModuleNotFoundError`
+
+Should ignore `MODULE_NOT_FOUND` error?
+
+```javascript
+requireResolveHook('react', () => require.resolve('not_found_package'))
+requireResolveHook('react', () => require.resolve('founded_react'))
+
+require.resolve('react') === require.resolve('founded_react')
+```
+
+```javascript
+requireResolveHook('react', () => require.resolve('not_found_package'), { ignoreModuleNotFoundError: false })
+requireResolveHook('react', () => require.resolve('founded_react'))
+
+require.resolve('react') // Throws MODULE_NOT_FOUND error
+```
+
+- **Type:** `boolean`
+- **Default:** `true`
 
 ## FAQ
 
