@@ -97,8 +97,11 @@ const requireResolveHook = (match: Match, onResolve: OnResolve, options: Options
 export const bypass = (fn: () => any): ReturnType<typeof fn> => {
   const _resolveFilename = Module._resolveFilename
   Module._resolveFilename = Module.__require_resolve_hook_origin_resolveFilename__ || Module._resolveFilename
-  const result = fn()
-  Module._resolveFilename = _resolveFilename
+  try {
+    const result = fn()
+  } finally {
+    Module._resolveFilename = _resolveFilename
+  }
   return result
 }
 
